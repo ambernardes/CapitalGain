@@ -30,7 +30,7 @@ namespace CapitalGain.IntegrationTests.Scenarios
 
         [Theory]
         [MemberData(nameof(TestCases))]
-        public void Scenario_Should_Match_Expected_Output(string inputPath, string expectedPath)
+        public void Scenario_Should_Match_Expected_Output(string inputPath, string expectedPath, int scenarioNumber)
         {
             // Arrange
             string inputJson = File.ReadAllText(inputPath);
