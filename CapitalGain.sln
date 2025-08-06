@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapitalGain", "CapitalGain\CapitalGain.csproj", "{2C125346-61E5-471F-9664-2F1AB4267135}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapitalGain.Tests", "CapitalGain.Tests\CapitalGain.Tests.csproj", "{614488F7-BF54-4D25-A740-0884D822B136}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CapitalGain.Tests", "CapitalGain.Tests\CapitalGain.Tests.csproj", "{614488F7-BF54-4D25-A740-0884D822B136}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapitalGain.IntegrationTests", "CapitalGain.IntegrationTests\CapitalGain.IntegrationTests.csproj", "{F734F395-A9E1-4F57-B365-2D44B9C86BC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{614488F7-BF54-4D25-A740-0884D822B136}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{614488F7-BF54-4D25-A740-0884D822B136}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{614488F7-BF54-4D25-A740-0884D822B136}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F734F395-A9E1-4F57-B365-2D44B9C86BC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F734F395-A9E1-4F57-B365-2D44B9C86BC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F734F395-A9E1-4F57-B365-2D44B9C86BC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F734F395-A9E1-4F57-B365-2D44B9C86BC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
