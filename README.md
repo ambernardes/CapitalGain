@@ -48,12 +48,14 @@ EOF
 cd CapitalGain
 dotnet build
 
-# Execute com arquivo de entrada (obrigatório)
+# Execute com arquivo de entrada (OBRIGATÓRIO)
 dotnet run --project CapitalGain -- --input operacoes.txt
 
-# Com configurações personalizadas
+# Com configurações personalizadas (opcionais - caso não informadas, usa valores padrão)
 dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15 --exemption-limit 25000
 ```
+
+> **Nota**: O parâmetro `--input` é obrigatório. Os demais parâmetros são opcionais e, se não informados, utilizam os valores padrão conforme especificação: taxa de 20% e limite de isenção de R$ 20.000.
 
 ### 3. Execute os testes
 
