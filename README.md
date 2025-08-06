@@ -62,6 +62,23 @@ CapitalGain.sln                      --> Arquivo da solução
 
 ## Como Usar
 
+### Preparação do Arquivo de Entrada
+
+Antes de executar o programa, você precisa criar um arquivo com suas operações no formato JSON:
+
+```bash
+# Crie um arquivo com suas operações (exemplo: operacoes.txt)
+cat > operacoes.txt << 'EOF'
+[{"operation":"buy", "unit-cost":10.00, "quantity": 1000}, {"operation":"sell", "unit-cost":15.00, "quantity": 500}]
+[{"operation":"buy", "unit-cost":20.00, "quantity": 500}, {"operation":"sell", "unit-cost":18.00, "quantity": 200}]
+EOF
+```
+
+**Formato requerido:**
+- Uma linha por lote de operações
+- Cada operação deve ter: `operation`, `unit-cost`, `quantity`
+- Operações: `"buy"` (compra) ou `"sell"` (venda)
+
 ### Execução Local
 
 1. Compile a solução:
@@ -71,18 +88,18 @@ CapitalGain.sln                      --> Arquivo da solução
 
 2. Execute o programa principal:
    ```bash
-   # Execução básica (parâmetro --input é obrigatório)
-   dotnet run --project CapitalGain -- --input input.txt
+   # Crie um arquivo de entrada com suas operações (exemplo: operacoes.txt)
+   dotnet run --project CapitalGain -- --input operacoes.txt
    
    # Com configurações personalizadas
-   dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+   dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15 --exemption-limit 25000
    
    # Usando arquivo de entrada diferente
    dotnet run --project CapitalGain -- --input meus-dados.txt
    
    # Alternativamente, execute a partir da pasta do projeto
    cd CapitalGain
-   dotnet run -- --input input.txt
+   dotnet run -- --input ../operacoes.txt
    ```
 
 ### Parâmetros Disponíveis
@@ -94,20 +111,20 @@ CapitalGain.sln                      --> Arquivo da solução
 ### Exemplos de Uso
 
 ```bash
-# Execução básica com arquivo padrão
-dotnet run --project CapitalGain -- --input input.txt
+# Execução básica com arquivo de operações
+dotnet run --project CapitalGain -- --input operacoes.txt
 
 # Taxa de imposto personalizada de 15%
-dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
+dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15
 
 # Limite de isenção personalizado de R$ 30.000
-dotnet run --project CapitalGain -- --input input.txt --exemption-limit 30000
+dotnet run --project CapitalGain -- --input operacoes.txt --exemption-limit 30000
 
 # Configuração completa personalizada
-dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.12 --exemption-limit 50000
+dotnet run --project CapitalGain -- --input minhas-operacoes.txt --tax-rate 0.12 --exemption-limit 50000
 
 # Usando forma abreviada dos parâmetros
-dotnet run --project CapitalGain -- -i input.txt -t 0.18 -e 15000
+dotnet run --project CapitalGain -- -i operacoes.txt -t 0.18 -e 15000
 ```
 
 3. Execute os testes:
@@ -141,14 +158,32 @@ Para usuários que querem testar rapidamente o sistema:
 git clone <repository-url>
 cd CapitalGain
 
-# 2. Execute com o arquivo de exemplo incluído
-dotnet run --project CapitalGain -- --input input.txt
+# 2. Crie um arquivo de entrada com suas operações
+echo '[{"operation":"buy", "unit-cost":10.00, "quantity": 100}, {"operation":"sell", "unit-cost":15.00, "quantity": 50}]' > operacoes.txt
 
-# 3. Teste com configurações personalizadas
-dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
+# 3. Execute o sistema
+dotnet run --project CapitalGain -- --input operacoes.txt
 
-# 4. Execute os testes para validar
+# 4. Teste com configurações personalizadas
+dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15
+
+# 5. Execute os testes para validar
 dotnet test
+```
+
+### Criando seu Arquivo de Entrada
+
+Crie um arquivo `.txt` com suas operações no formato JSON:
+
+```bash
+# Crie o arquivo operacoes.txt
+cat > operacoes.txt << 'EOF'
+[{"operation":"buy", "unit-cost":10.00, "quantity": 1000}, {"operation":"sell", "unit-cost":15.00, "quantity": 500}]
+[{"operation":"buy", "unit-cost":20.00, "quantity": 500}, {"operation":"sell", "unit-cost":25.00, "quantity": 200}]
+EOF
+
+# Execute o programa
+dotnet run --project CapitalGain -- --input operacoes.txt
 ```
 
 ### Cenários de Uso Comuns
@@ -176,10 +211,10 @@ Esta é a forma principal e mais flexível de configurar o sistema:
 
 ```bash
 # Configuração básica (valores padrão para taxa e limite)
-dotnet run --project CapitalGain -- --input input.txt
+dotnet run --project CapitalGain -- --input operacoes.txt
 
 # Configuração personalizada completa
-dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15 --exemption-limit 25000
 ```
 
 **Parâmetros disponíveis:**
@@ -446,7 +481,7 @@ O arquivo de entrada é especificado através do parâmetro obrigatório `--inpu
 
 ```bash
 # Usando arquivo na pasta atual
-dotnet run --project CapitalGain -- --input input.txt
+dotnet run --project CapitalGain -- --input operacoes.txt
 
 # Usando caminho absoluto
 dotnet run --project CapitalGain -- --input C:\dados\operacoes.txt
@@ -477,13 +512,50 @@ O arquivo deve conter operações em formato JSON, uma linha por lote de operaç
 [{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}, {"operation":"sell", "unit-cost":5.00, "quantity": 5000}]
 ```
 
-### Arquivo de Exemplo
+### Arquivo de Exemplo para Testes
 
-O projeto inclui um arquivo `input.txt` de exemplo na pasta `CapitalGain/` que pode ser usado como referência:
+Você pode usar os arquivos de exemplo dos testes de integração para experimentar o sistema:
 
 ```bash
-# Executar com o arquivo de exemplo
-dotnet run --project CapitalGain -- --input input.txt
+# Copie um dos arquivos de teste para usar como exemplo
+cp CapitalGain.IntegrationTests/Fixtures/input0.txt operacoes-exemplo.txt
+
+# Execute com o arquivo de exemplo
+dotnet run --project CapitalGain -- --input operacoes-exemplo.txt
+```
+
+### Criando seu Próprio Arquivo
+
+Para criar seu próprio arquivo de operações:
+
+```bash
+# Exemplo simples - crie o arquivo operacoes.txt
+echo '[{"operation":"buy", "unit-cost":10.00, "quantity": 100}]' > operacoes.txt
+echo '[{"operation":"sell", "unit-cost":15.00, "quantity": 50}]' >> operacoes.txt
+
+# Execute o programa
+dotnet run --project CapitalGain -- --input operacoes.txt
+```
+
+### Exemplos de Arquivos de Entrada
+
+#### Exemplo 1: Operações Simples
+```json
+[{"operation":"buy", "unit-cost":10.00, "quantity": 100}]
+[{"operation":"sell", "unit-cost":15.00, "quantity": 50}]
+```
+
+#### Exemplo 2: Múltiplas Operações por Lote
+```json
+[{"operation":"buy", "unit-cost":10.00, "quantity": 100}, {"operation":"sell", "unit-cost":15.00, "quantity": 50}]
+[{"operation":"buy", "unit-cost":20.00, "quantity": 200}, {"operation":"sell", "unit-cost":18.00, "quantity": 100}]
+```
+
+#### Exemplo 3: Cenário com Prejuízo
+```json
+[{"operation":"buy", "unit-cost":20.00, "quantity": 100}]
+[{"operation":"sell", "unit-cost":15.00, "quantity": 50}]
+[{"operation":"sell", "unit-cost":25.00, "quantity": 50}]
 ```
 
 ## Contribuição
@@ -519,8 +591,9 @@ Para adicionar um novo cenário de teste de integração:
 
 2. **Execute o sistema para gerar a saída**:
    ```bash
-   # Substitua temporariamente o input.txt pelo seu cenário
-   dotnet run --project CapitalGain
+   # Crie um arquivo temporário com seu cenário
+   echo '[{"operation":"buy", "unit-cost":5.00, "quantity": 1000}]' > teste-cenario.txt
+   dotnet run --project CapitalGain -- --input teste-cenario.txt
    ```
 
 3. **Crie o arquivo expected correspondente**:
