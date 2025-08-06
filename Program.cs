@@ -1,7 +1,6 @@
 ﻿using CapitalGain.Services;
 using CapitalGain.Models;
 
-// Parse dos argumentos de linha de comando
 decimal? taxRate = null;
 decimal? exemptionLimit = null;
 string? inputFile = null;
@@ -37,7 +36,6 @@ for (int i = 0; i < args.Length; i++)
     }
 }
 
-// Validar se o arquivo de entrada foi fornecido
 if (string.IsNullOrEmpty(inputFile))
 {
     Console.Error.WriteLine("Erro: O parâmetro --input é obrigatório.");
@@ -45,17 +43,16 @@ if (string.IsNullOrEmpty(inputFile))
     Environment.Exit(1);
 }
 
-// Cria a configuração com os parâmetros fornecidos
 var taxConfig = new TaxConfiguration(taxRate, exemptionLimit);
 var service = new CapitalGainService(taxConfig);
 
 string inputJson = File.ReadAllText(inputFile);
 
-// Parse das operações
+// Read operations
 var allOperations = service.ParseOperations(inputJson);
 
-// Calcula os impostos
+// Process operations
 service.CalculateTaxes(allOperations);
 
-// Exibe os resultados
+// Show results
 service.DisplayResults(allOperations);

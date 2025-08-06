@@ -67,22 +67,17 @@ namespace CapitalGain.Services
                         
                         totalQuantity -= op.Quantity;
                         
-                        if (gain > 0) // Lucro
+                        if (gain > 0) 
                         {
-                            // Não paga imposto se o valor total da operação for <= limite de isenção
                             if (soldPrice <= _taxConfig.TaxExemptionLimit)
                             {
                                 op.TaxPaid = 0;
                             }
                             else
                             {
-                                // Deduz prejuízos acumulados do lucro antes de calcular o imposto
                                 var taxableGain = Math.Round(Math.Max(0, gain - accumulatedLoss), 2);
                                 var taxPaid = Math.Round(taxableGain * _taxConfig.TaxRate, 2);
-                                
-                                // Atualiza prejuízos acumulados
                                 accumulatedLoss = Math.Round(Math.Max(0, accumulatedLoss - gain), 2);
-                                
                                 op.TaxPaid = taxPaid;
                             }
                         }
