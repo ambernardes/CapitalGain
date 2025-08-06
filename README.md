@@ -34,22 +34,31 @@ var preco2 = TaxCalculator.CalculateWeightedAveragePrice(10.00m, 100, 20.00m, 10
 
 ## Estrutura do Projeto
 ```
-CapitalGain.sln                     --> Arquivo da solução
+CapitalGain.sln                      --> Arquivo da solução
 │
-├── CapitalGain/                    --> Projeto principal
-│   ├── Program.cs                  --> Ponto de entrada da aplicação
+├── CapitalGain/                     --> Projeto principal
+│   ├── Program.cs                   --> Ponto de entrada da aplicação
+│   ├── input.txt                    --> Arquivo de entrada de exemplo
 │   ├── Models/
-│   │   ├── OperationEntry.cs       --> Classe para representar dados de entrada
-│   │   └── TaxConfiguration.cs     --> Configuração de impostos
+│   │   ├── OperationEntry.cs        --> Classe para representar dados de entrada
+│   │   └── TaxConfiguration.cs      --> Configuração de impostos
 │   └── Services/
-│       ├── CapitalGainService.cs   --> Lógica principal de processamento
-│       └── TaxCalculator.cs        --> Cálculos matemáticos (funções puras)
+│       ├── CapitalGainService.cs    --> Lógica principal de processamento
+│       ├── TaxCalculator.cs         --> Cálculos matemáticos (funções puras)
+│       └── TaxCalculatorSimple.cs   --> Implementação simplificada de cálculos
 │
-├── CapitalGain.Tests/              --> Projeto de testes
-│   ├── CapitalGainServiceTests.cs  --> Testes do serviço principal
-│   └── TaxCalculatorSimpleTests.cs --> Testes das funções de cálculo
+├── CapitalGain.Tests/               --> Projeto de testes unitários
+│   ├── CapitalGainServiceTests.cs   --> Testes do serviço principal
+│   └── TaxCalculatorTests.cs        --> Testes das funções de cálculo
 │
-└── README.md                       --> Documentação do projeto
+├── CapitalGain.IntegrationTests/    --> Projeto de testes de integração
+│   ├── Scenarios/
+│   │   └── FullFlowTests.cs         --> Testes de fluxo completo end-to-end
+│   └── Fixtures/                    --> Arquivos de teste com cenários
+│       ├── input0.txt ... input9.txt     --> Cenários de entrada
+│       └── output0.txt ... output9.txt    --> Saídas de referência
+│
+└── README.md                        --> Documentação do projeto
 ```
 
 ## Como Usar
@@ -63,71 +72,51 @@ CapitalGain.sln                     --> Arquivo da solução
 
 2. Execute o programa principal:
    ```bash
-   # Execução básica (arquivo de entrada obrigatório)
-   dotnet run --project CapitalGain -- --input input.txt
+   # Execução básica (atualmente usa arquivo input.txt na pasta do projeto)
+   dotnet run --project CapitalGain
    
-   # Com parâmetros personalizados
-   dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+   # Alternativamente, execute a partir da pasta do projeto
+   cd CapitalGain
+   dotnet run
    ```
 
 3. Execute os testes:
    ```bash
+   # Todos os testes (unitários e integração)
    dotnet test
+   
+   # Apenas testes unitários
+   dotnet test CapitalGain.Tests
+   
+   # Apenas testes de integração
+   dotnet test CapitalGain.IntegrationTests
    ```
 ## Configuração
 
-O sistema oferece **3 níveis de configuração** com precedência hierárquica:
+O sistema utiliza configurações padrão que podem ser personalizadas através da classe `TaxConfiguration`:
 
-### 1. Valores Padrão (menor prioridade)
+### Valores Padrão
 - Taxa de imposto: **20%** (0.20)
 - Limite de isenção: **R$ 20.000**
 
-### 2. Variáveis de Ambiente (prioridade média)
-```bash
-# PowerShell
-$env:CAPITAL_GAIN_TAX_RATE="0.15"
-$env:CAPITAL_GAIN_EXEMPTION_LIMIT="25000"
+### Configuração Programática
+```csharp
+// Usando configuração padrão
+var service = new CapitalGainService();
 
-# Linux/Mac
-export CAPITAL_GAIN_TAX_RATE=0.15
-export CAPITAL_GAIN_EXEMPTION_LIMIT=25000
+// Usando configuração personalizada
+var taxConfig = new TaxConfiguration(taxRate: 0.15m, exemptionLimit: 25000m);
+var service = new CapitalGainService(taxConfig);
 ```
 
-### 3. Parâmetros de Linha de Comando (maior prioridade)
-```bash
-dotnet run -- --tax-rate 0.15 --exemption-limit 25000
+### Arquivo de Entrada
+Atualmente, o sistema lê o arquivo `input.txt` localizado na pasta do projeto principal. O arquivo deve conter operações em formato JSON, uma linha por lote:
+
+```json
+[{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
+[{"operation":"buy", "unit-cost":20.00, "quantity": 10000}, {"operation":"sell", "unit-cost":10.00, "quantity": 5000}]
 ```
 
-### Opções Disponíveis
-- `-i, --input <arquivo>`: **OBRIGATÓRIO** - Arquivo de entrada com as operações
-- `-t, --tax-rate <valor>`: **OPCIONAL** - Taxa de imposto (ex: 0.15 para 15%)
-- `-e, --exemption-limit <valor>`: **OPCIONAL** - Limite de isenção em reais
-
-### Exemplos de Uso
-
-```bash
-# Execução básica com arquivo padrão
-dotnet run --project CapitalGain -- --input input.txt
-
-# Taxa personalizada de 15%
-dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
-
-# Limite de isenção de R$ 30.000
-dotnet run --project CapitalGain -- --input input.txt --exemption-limit 30000
-
-# Configuração completa personalizada
-dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.12 --exemption-limit 50000
-
-# Usando arquivo de entrada diferente
-dotnet run --project CapitalGain -- --input operacoes.txt
-
-# Combinando variáveis de ambiente e parâmetros
-$env:CAPITAL_GAIN_TAX_RATE="0.25"
-dotnet run --project CapitalGain -- --input input.txt --exemption-limit 35000
-
-# Executar testes
-dotnet test
-```
 
 ## Desenvolvimento e Extensibilidade
 
@@ -169,39 +158,102 @@ public void CalculateBrokerageFee_ValidInputs_ReturnsCorrectFee()
 3. **Documente Comportamento**: Use comentários XML para documentar
 4. **Valide Entradas**: Trate casos extremos e entradas inválidas
 
+## Testes de Integração
+
+### Estrutura dos Testes de Integração
+
+O projeto inclui um conjunto abrangente de testes de integração que validam o fluxo completo do sistema usando cenários reais:
+
+#### Arquivos de Fixtures
+```
+CapitalGain.IntegrationTests/
+└── Fixtures/
+    ├── input0.txt ... input9.txt      --> Cenários de entrada diversos
+    ├── expected0.txt ... expected2.txt --> Resultados esperados validados
+    └── output0.txt ... output9.txt     --> Arquivos de referência
+```
+
+#### Como Funcionam os Testes
+
+1. **Leitura de Cenários**: Os testes leem pares de arquivos `inputX.txt` e `expectedX.txt`
+2. **Processamento**: Executam o fluxo completo do `CapitalGainService`
+3. **Validação**: Comparam a saída gerada com o resultado esperado
+4. **Normalização**: Removem diferenças de formatação (espaços, quebras de linha)
+
+#### Exemplo de Cenário
+```json
+// input0.txt
+[{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
+[{"operation":"buy", "unit-cost":20.00, "quantity": 10000}, {"operation":"sell", "unit-cost":10.00, "quantity": 5000}]
+
+// expected0.txt
+[{"tax":0},{"tax":10000}]
+[{"tax":0},{"tax":0}]
+```
+
+### Executando Testes de Integração
+
+```bash
+# Executar apenas testes de integração
+dotnet test CapitalGain.IntegrationTests
+
+# Executar com detalhes para debugging
+dotnet test CapitalGain.IntegrationTests --verbosity normal
+
+# Executar cenário específico
+dotnet test --filter "input0"
+```
+
 ## Testes
 
 O projeto inclui testes unitários abrangentes para validar tanto a funcionalidade do serviço principal quanto as funções de cálculo.
 
 ### Categorias de Testes
 
-#### 1. Testes de Transparência Referencial (`TaxCalculatorSimpleTests`)
+#### 1. Testes Unitários (`CapitalGain.Tests`)
+- **`TaxCalculatorTests`**: Validam funções puras de cálculo matemático
+- **`CapitalGainServiceTests`**: Testam lógica de negócio e fluxo do serviço
 - Validam que funções puras retornam sempre o mesmo resultado
 - Testam cálculos matemáticos isoladamente
 - Verificam diferentes cenários de entrada
 
-#### 2. Testes de Integração (`CapitalGainServiceTests`)
-- Validam o fluxo completo de processamento
-- Testam regras de negócio complexas
-- Verificam integração entre componentes
+#### 2. Testes de Integração (`CapitalGain.IntegrationTests`)
+- **`FullFlowTests`**: Validam o fluxo completo end-to-end
+- Testam cenários reais com arquivos de entrada e saída
+- Verificam integração entre todos os componentes
+- Comparam resultados atuais com resultados esperados
+
+#### 3. Fixtures de Teste
+- **Arquivos de Entrada**: `input0.txt` a `input9.txt` - Cenários diversos de operações
+- **Resultados Esperados**: `expected0.txt` a `expected2.txt` - Saídas esperadas para validação
+- **Arquivos de Referência**: `output0.txt` a `output9.txt` - Saídas de referência
 
 ### Executar Testes
 
 ```bash
-# Executar todos os testes
+# Executar todos os testes (unitários + integração)
 dotnet test
 
-# Executar testes com verbose
+# Executar testes com informações detalhadas
 dotnet test --verbosity normal
 
-# Executar apenas testes de cálculo
-dotnet test --filter "TaxCalculatorSimpleTests"
+# Executar apenas testes unitários
+dotnet test CapitalGain.Tests
 
-# Executar apenas testes do serviço principal
+# Executar apenas testes de integração
+dotnet test CapitalGain.IntegrationTests
+
+# Executar testes específicos por nome
+dotnet test --filter "TaxCalculatorTests"
+
+# Executar testes específicos do serviço principal
 dotnet test --filter "CapitalGainServiceTests"
 
-# Executar testes específicos do projeto
-dotnet test CapitalGain.Tests
+# Executar testes de fluxo completo
+dotnet test --filter "FullFlowTests"
+
+# Executar com cobertura de código (se configurado)
+dotnet test --collect:"XPlat Code Coverage"
 ```
 
 ## Benefícios da Arquitetura
@@ -211,19 +263,64 @@ dotnet test CapitalGain.Tests
 - Fácil identificação e correção de bugs em cálculos específicos
 - Código mais legível e autodocumentado
 
-### 🧪 **Testabilidade**
+### 🧪 **Estratégia de Testes em Camadas**
+- **Testes Unitários**: Validação isolada de métodos e funções puras
+- **Testes de Integração**: Validação end-to-end com cenários reais
+- **Fixtures Organizadas**: Cenários de teste bem estruturados e reutilizáveis
+
+### 📊 **Cobertura de Testes Abrangente**
+- Cenários de compra e venda diversos
+- Casos extremos (prejuízos, isenções, volumes altos)
+- Validação de cálculos matemáticos complexos
+
+## Arquitetura de Testes
+
+### Estratégia em Três Camadas
+
+O projeto implementa uma estratégia de testes em camadas para garantir qualidade e confiabilidade:
+
+#### 1. **Testes Unitários** (`CapitalGain.Tests`)
+- **Objetivo**: Validar componentes isoladamente
+- **Foco**: Transparência referencial e lógica de negócio
+- **Execução**: Rápida e determinística
+- **Cobertura**: Métodos individuais e casos extremos
+
+#### 2. **Testes de Integração** (`CapitalGain.IntegrationTests`)  
+- **Objetivo**: Validar fluxo completo end-to-end
+- **Foco**: Integração entre componentes e cenários reais
+- **Execução**: Baseada em fixtures e comparação de resultados
+- **Cobertura**: Cenários de negócio complexos
+
+#### 3. **Fixtures Organizadas**
+- **Objetivo**: Cenários reutilizáveis e bem documentados
+- **Estrutura**: Pares `input`/`expected` para cada cenário
+- **Benefícios**: Facilita debugging e adição de novos casos
+- **Manutenção**: Versionamento de cenários de teste
+
+### Benefícios da Arquitetura Atual
+
+#### 🔧 **Manutenibilidade**
+- Cálculos matemáticos isolados em funções puras
+- Fácil identificação e correção de bugs em cálculos específicos
+- Código mais legível e autodocumentado
+- Separação clara entre lógica de negócio e apresentação
+
+#### 🧪 **Testabilidade**
 - Funções puras são facilmente testáveis
 - Testes determinísticos (sempre produzem o mesmo resultado)
 - Cobertura de testes mais granular
+- Cenários de integração documentados e reproduzíveis
 
-### 🔄 **Reutilização**
+#### 🔄 **Reutilização**
 - Métodos de cálculo podem ser reutilizados em outros contextos
 - Separação clara entre lógica de negócio e cálculos matemáticos
+- Fixtures reutilizáveis para diferentes tipos de teste
 
-### 🚀 **Performance**
+#### 🚀 **Performance**
 - Funções puras podem ser otimizadas pelo compilador
 - Possibilidade de memoização em cenários específicos
 - Redução de efeitos colaterais indesejados
+- Testes rápidos e paralelos
 
 ## Regras de Negócio
 
@@ -248,42 +345,33 @@ Estes métodos garantem:
 
 ## Formato do Arquivo de Entrada
 
-**IMPORTANTE**: O arquivo de entrada é **OBRIGATÓRIO** e deve ser especificado através do parâmetro `--input`.
+O sistema lê o arquivo `input.txt` localizado na pasta `CapitalGain/` do projeto. 
 
-O programa procurará o arquivo nos seguintes locais:
-1. Caminho especificado diretamente
-2. Pasta `inputs/` no diretório atual
-3. Pasta `/app/inputs/` (para execução em Docker)
-4. Pasta `test-inputs/` no diretório atual
-5. Pasta `/app/test-inputs/` (para execução em Docker)
+### Formato Esperado
 
-Se o arquivo não for encontrado em nenhum desses locais, o programa exibirá uma mensagem de erro e terminará.
-
-O arquivo deve conter operações em formato JSON, uma linha por lote:
+O arquivo deve conter operações em formato JSON, uma linha por lote de operações:
 
 ```json
 [{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
 [{"operation":"buy", "unit-cost":20.00, "quantity": 10000}, {"operation":"sell", "unit-cost":10.00, "quantity": 5000}]
 ```
 
-### Mensagens de Erro
+### Campos Obrigatórios
 
-Se o parâmetro `--input` não for fornecido:
-```
-Erro: O parâmetro --input é obrigatório.
-Uso: --input <caminho_do_arquivo> [--tax-rate <valor>] [--exemption-limit <valor>]
+- **`operation`**: Tipo da operação (`"buy"` ou `"sell"`)
+- **`unit-cost`**: Preço unitário da ação (decimal)
+- **`quantity`**: Quantidade de ações (inteiro)
+
+### Exemplo Completo
+
+```json
+[{"operation":"buy", "unit-cost":10.00, "quantity": 100}, {"operation":"sell", "unit-cost":15.00, "quantity": 50}, {"operation":"sell", "unit-cost":15.00, "quantity": 50}]
+[{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}, {"operation":"sell", "unit-cost":5.00, "quantity": 5000}]
 ```
 
-Se o arquivo especificado não for encontrado:
-```
-Erro: Arquivo 'arquivo.txt' não encontrado.
-Verifique se o arquivo existe nos seguintes locais:
-- arquivo.txt
-- inputs/arquivo.txt
-- /app/inputs/arquivo.txt
-- test-inputs/arquivo.txt
-- /app/test-inputs/arquivo.txt
-```
+### Arquivo de Exemplo
+
+O projeto inclui um arquivo `input.txt` de exemplo na pasta `CapitalGain/` com cenários de teste pré-configurados.
 
 ## Contribuição
 
@@ -297,16 +385,50 @@ Verifique se o arquivo existe nos seguintes locais:
    - Todo novo método deve ter testes correspondentes
    - Testes devem verificar transparência referencial (mesma entrada = mesma saída)
 
-3. **Documentação**
+3. **Testes de Integração**
+   - Adicione novos cenários em arquivos `inputX.txt` na pasta `Fixtures/`
+   - Crie os arquivos `expectedX.txt` correspondentes com os resultados esperados
+   - Execute os testes para validar os novos cenários
+
+4. **Documentação**
    - Use comentários XML para documentar métodos públicos
    - Atualize o README quando adicionar nova funcionalidade
+
+### Adicionando Novos Cenários de Teste
+
+Para adicionar um novo cenário de teste de integração:
+
+1. **Crie o arquivo de entrada**:
+   ```bash
+   # Exemplo: input10.txt
+   [{"operation":"buy", "unit-cost":5.00, "quantity": 1000}]
+   ```
+
+2. **Execute o sistema para gerar a saída**:
+   ```bash
+   # Substitua temporariamente o input.txt pelo seu cenário
+   dotnet run --project CapitalGain
+   ```
+
+3. **Crie o arquivo expected correspondente**:
+   ```bash
+   # expected10.txt com a saída correta
+   [{"tax":0}]
+   ```
+
+4. **Execute os testes de integração**:
+   ```bash
+   dotnet test CapitalGain.IntegrationTests
+   ```
 
 ### Estrutura de Commits
 ```
 feat: adiciona cálculo de taxa de corretagem
-test: adiciona testes para CalculateBrokerageFee
+test: adiciona testes unitários para CalculateBrokerageFee
+test: adiciona cenários de integração para taxa de corretagem
 docs: atualiza README com nova funcionalidade
 refactor: melhora transparência referencial em TaxCalculator
+fix: corrige cálculo de preço médio ponderado
 ```
 
 ### Exemplo de Pull Request
@@ -317,6 +439,8 @@ Adiciona cálculo de taxa de corretagem como função pura
 ## Checklist
 - [x] Método implementado como função pura
 - [x] Testes unitários adicionados
+- [x] Testes de integração com novos cenários
 - [x] Documentação atualizada
 - [x] Transparência referencial verificada
+- [x] Arquivos expected criados e validados
 ```
