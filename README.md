@@ -38,7 +38,6 @@ CapitalGain.sln                      --> Arquivo da solução
 │
 ├── CapitalGain/                     --> Projeto principal
 │   ├── Program.cs                   --> Ponto de entrada da aplicação
-│   ├── input.txt                    --> Arquivo de entrada de exemplo
 │   ├── Models/
 │   │   ├── OperationEntry.cs        --> Classe para representar dados de entrada
 │   │   └── TaxConfiguration.cs      --> Configuração de impostos
@@ -72,13 +71,44 @@ CapitalGain.sln                      --> Arquivo da solução
 
 2. Execute o programa principal:
    ```bash
-   # Execução básica (atualmente usa arquivo input.txt na pasta do projeto)
-   dotnet run --project CapitalGain
+   # Execução básica (parâmetro --input é obrigatório)
+   dotnet run --project CapitalGain -- --input input.txt
+   
+   # Com configurações personalizadas
+   dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+   
+   # Usando arquivo de entrada diferente
+   dotnet run --project CapitalGain -- --input meus-dados.txt
    
    # Alternativamente, execute a partir da pasta do projeto
    cd CapitalGain
-   dotnet run
+   dotnet run -- --input input.txt
    ```
+
+### Parâmetros Disponíveis
+
+- **`--input` ou `-i`**: **OBRIGATÓRIO** - Caminho para o arquivo de entrada
+- **`--tax-rate` ou `-t`**: **OPCIONAL** - Taxa de imposto personalizada (ex: 0.15 para 15%)
+- **`--exemption-limit` ou `-e`**: **OPCIONAL** - Limite de isenção em reais (ex: 25000)
+
+### Exemplos de Uso
+
+```bash
+# Execução básica com arquivo padrão
+dotnet run --project CapitalGain -- --input input.txt
+
+# Taxa de imposto personalizada de 15%
+dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
+
+# Limite de isenção personalizado de R$ 30.000
+dotnet run --project CapitalGain -- --input input.txt --exemption-limit 30000
+
+# Configuração completa personalizada
+dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.12 --exemption-limit 50000
+
+# Usando forma abreviada dos parâmetros
+dotnet run --project CapitalGain -- -i input.txt -t 0.18 -e 15000
+```
 
 3. Execute os testes:
    ```bash
@@ -91,15 +121,76 @@ CapitalGain.sln                      --> Arquivo da solução
    # Apenas testes de integração
    dotnet test CapitalGain.IntegrationTests
    ```
+
+### Tratamento de Erros
+
+Se o parâmetro `--input` não for fornecido, o programa exibirá:
+```
+Erro: O parâmetro --input é obrigatório.
+Uso: --input <caminho_do_arquivo> [--tax-rate <valor>] [--exemption-limit <valor>]
+```
+
+O programa tentará localizar o arquivo especificado e exibirá uma mensagem de erro caso não seja encontrado.
+
+## Execução Rápida
+
+Para usuários que querem testar rapidamente o sistema:
+
+```bash
+# 1. Clone e navegue para o projeto
+git clone <repository-url>
+cd CapitalGain
+
+# 2. Execute com o arquivo de exemplo incluído
+dotnet run --project CapitalGain -- --input input.txt
+
+# 3. Teste com configurações personalizadas
+dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
+
+# 4. Execute os testes para validar
+dotnet test
+```
+
+### Cenários de Uso Comuns
+
+```bash
+# Análise básica com dados padrão
+dotnet run --project CapitalGain -- --input minhas-operacoes.txt
+
+# Simulação com taxa reduzida (Day Trade)
+dotnet run --project CapitalGain -- --input day-trade.txt --tax-rate 0.15
+
+# Análise para pessoa física com limite maior
+dotnet run --project CapitalGain -- --input pf-operacoes.txt --exemption-limit 35000
+
+# Simulação empresarial com parâmetros específicos
+dotnet run --project CapitalGain -- --input empresa.txt --tax-rate 0.25 --exemption-limit 0
+```
 ## Configuração
 
-O sistema utiliza configurações padrão que podem ser personalizadas através da classe `TaxConfiguration`:
+O sistema oferece **duas formas principais de configuração**:
 
-### Valores Padrão
-- Taxa de imposto: **20%** (0.20)
-- Limite de isenção: **R$ 20.000**
+### 1. Parâmetros de Linha de Comando (Recomendado)
 
-### Configuração Programática
+Esta é a forma principal e mais flexível de configurar o sistema:
+
+```bash
+# Configuração básica (valores padrão para taxa e limite)
+dotnet run --project CapitalGain -- --input input.txt
+
+# Configuração personalizada completa
+dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+```
+
+**Parâmetros disponíveis:**
+- **`--input` / `-i`**: Arquivo de entrada (OBRIGATÓRIO)
+- **`--tax-rate` / `-t`**: Taxa de imposto decimal (ex: 0.15 para 15%)
+- **`--exemption-limit` / `-e`**: Limite de isenção em reais (ex: 25000)
+
+### 2. Configuração Programática
+
+Para personalização durante desenvolvimento ou testes:
+
 ```csharp
 // Usando configuração padrão
 var service = new CapitalGainService();
@@ -109,13 +200,17 @@ var taxConfig = new TaxConfiguration(taxRate: 0.15m, exemptionLimit: 25000m);
 var service = new CapitalGainService(taxConfig);
 ```
 
-### Arquivo de Entrada
-Atualmente, o sistema lê o arquivo `input.txt` localizado na pasta do projeto principal. O arquivo deve conter operações em formato JSON, uma linha por lote:
+### Valores Padrão
 
-```json
-[{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
-[{"operation":"buy", "unit-cost":20.00, "quantity": 10000}, {"operation":"sell", "unit-cost":10.00, "quantity": 5000}]
-```
+Quando não especificados via parâmetros:
+- **Taxa de imposto**: 20% (0.20)
+- **Limite de isenção**: R$ 20.000
+
+### Prioridade de Configuração
+
+1. **Parâmetros de linha de comando** (maior prioridade)
+2. **Configuração programática** 
+3. **Valores padrão** (menor prioridade)
 
 
 ## Desenvolvimento e Extensibilidade
@@ -345,7 +440,20 @@ Estes métodos garantem:
 
 ## Formato do Arquivo de Entrada
 
-O sistema lê o arquivo `input.txt` localizado na pasta `CapitalGain/` do projeto. 
+O arquivo de entrada é especificado através do parâmetro obrigatório `--input` e pode estar localizado em qualquer local do sistema.
+
+### Especificação do Arquivo
+
+```bash
+# Usando arquivo na pasta atual
+dotnet run --project CapitalGain -- --input input.txt
+
+# Usando caminho absoluto
+dotnet run --project CapitalGain -- --input C:\dados\operacoes.txt
+
+# Usando caminho relativo
+dotnet run --project CapitalGain -- --input ./dados/minhas-operacoes.txt
+```
 
 ### Formato Esperado
 
@@ -371,7 +479,12 @@ O arquivo deve conter operações em formato JSON, uma linha por lote de operaç
 
 ### Arquivo de Exemplo
 
-O projeto inclui um arquivo `input.txt` de exemplo na pasta `CapitalGain/` com cenários de teste pré-configurados.
+O projeto inclui um arquivo `input.txt` de exemplo na pasta `CapitalGain/` que pode ser usado como referência:
+
+```bash
+# Executar com o arquivo de exemplo
+dotnet run --project CapitalGain -- --input input.txt
+```
 
 ## Contribuição
 
