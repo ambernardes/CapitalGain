@@ -27,11 +27,11 @@ CapitalGain/
 
 2. Execute o programa:
    ```bash
-   # Configuração padrão
-   dotnet run
+   # Execução básica (arquivo de entrada obrigatório)
+   dotnet run -- --input input.txt
    
    # Com parâmetros personalizados
-   dotnet run -- --tax-rate 0.15 --exemption-limit 25000
+   dotnet run -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
    
    ```
 ## Configuração
@@ -59,31 +59,31 @@ dotnet run -- --tax-rate 0.15 --exemption-limit 25000
 ```
 
 ### Opções Disponíveis
-- `-t, --tax-rate <valor>`: Taxa de imposto (ex: 0.15 para 15%)
-- `-e, --exemption-limit <valor>`: Limite de isenção em reais
-- `-i, --input <arquivo>`: Arquivo de entrada (padrão: input.txt)
+- `-i, --input <arquivo>`: **OBRIGATÓRIO** - Arquivo de entrada com as operações
+- `-t, --tax-rate <valor>`: **OPCIONAL** - Taxa de imposto (ex: 0.15 para 15%)
+- `-e, --exemption-limit <valor>`: **OPCIONAL** - Limite de isenção em reais
 
 ### Exemplos de Uso
 
 ```bash
-# Configuração padrão (20%, R$ 20.000)
-dotnet run
+# Execução básica com arquivo padrão
+dotnet run -- --input input.txt
 
 # Taxa personalizada de 15%
-dotnet run -- --tax-rate 0.15
+dotnet run -- --input input.txt --tax-rate 0.15
 
 # Limite de isenção de R$ 30.000
-dotnet run -- --exemption-limit 30000
+dotnet run -- --input input.txt --exemption-limit 30000
 
 # Configuração completa personalizada
-dotnet run -- --tax-rate 0.12 --exemption-limit 50000 --show-config
+dotnet run -- --input input.txt --tax-rate 0.12 --exemption-limit 50000
 
 # Usando arquivo de entrada diferente
-dotnet run -- --input input2.txt
+dotnet run -- --input operacoes.txt
 
 # Combinando variáveis de ambiente e parâmetros
 $env:CAPITAL_GAIN_TAX_RATE="0.25"
-dotnet run -- --exemption-limit 35000 --show-config
+dotnet run -- --input input.txt --exemption-limit 35000
 ```
 
 ## Regras de Negócio
@@ -97,9 +97,39 @@ dotnet run -- --exemption-limit 35000 --show-config
 
 ## Formato do Arquivo de Entrada
 
-O arquivo `input.txt` deve conter operações em formato JSON, uma linha por lote:
+**IMPORTANTE**: O arquivo de entrada é **OBRIGATÓRIO** e deve ser especificado através do parâmetro `--input`.
+
+O programa procurará o arquivo nos seguintes locais:
+1. Caminho especificado diretamente
+2. Pasta `inputs/` no diretório atual
+3. Pasta `/app/inputs/` (para execução em Docker)
+4. Pasta `test-inputs/` no diretório atual
+5. Pasta `/app/test-inputs/` (para execução em Docker)
+
+Se o arquivo não for encontrado em nenhum desses locais, o programa exibirá uma mensagem de erro e terminará.
+
+O arquivo deve conter operações em formato JSON, uma linha por lote:
 
 ```json
 [{"operation":"buy", "unit-cost":10.00, "quantity": 10000}, {"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
 [{"operation":"buy", "unit-cost":20.00, "quantity": 10000}, {"operation":"sell", "unit-cost":10.00, "quantity": 5000}]
+```
+
+### Mensagens de Erro
+
+Se o parâmetro `--input` não for fornecido:
+```
+Erro: O parâmetro --input é obrigatório.
+Uso: --input <caminho_do_arquivo> [--tax-rate <valor>] [--exemption-limit <valor>]
+```
+
+Se o arquivo especificado não for encontrado:
+```
+Erro: Arquivo 'arquivo.txt' não encontrado.
+Verifique se o arquivo existe nos seguintes locais:
+- arquivo.txt
+- inputs/arquivo.txt
+- /app/inputs/arquivo.txt
+- test-inputs/arquivo.txt
+- /app/test-inputs/arquivo.txt
 ```

@@ -4,7 +4,7 @@ using CapitalGain.Models;
 // Parse dos argumentos de linha de comando
 decimal? taxRate = null;
 decimal? exemptionLimit = null;
-string inputFile = "input.txt";
+string? inputFile = null;
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -35,6 +35,14 @@ for (int i = 0; i < args.Length; i++)
             }
             break;
     }
+}
+
+// Validar se o arquivo de entrada foi fornecido
+if (string.IsNullOrEmpty(inputFile))
+{
+    Console.Error.WriteLine("Erro: O parâmetro --input é obrigatório.");
+    Console.Error.WriteLine("Uso: --input <caminho_do_arquivo> [--tax-rate <valor>] [--exemption-limit <valor>]");
+    Environment.Exit(1);
 }
 
 // Cria a configuração com os parâmetros fornecidos
@@ -70,7 +78,12 @@ if (!File.Exists(inputFile))
     else
     {
         Console.Error.WriteLine($"Erro: Arquivo '{inputFile}' não encontrado.");
-        Console.Error.WriteLine("Verifique se o arquivo existe ou use o parâmetro --input para especificar o caminho correto.");
+        Console.Error.WriteLine("Verifique se o arquivo existe nos seguintes locais:");
+        Console.Error.WriteLine($"- {inputFile}");
+        foreach (var path in alternativePaths)
+        {
+            Console.Error.WriteLine($"- {path}");
+        }
         Environment.Exit(1);
     }
 }
