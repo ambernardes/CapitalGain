@@ -33,99 +33,7 @@ CapitalGain/
    # Com parâmetros personalizados
    dotnet run -- --tax-rate 0.15 --exemption-limit 25000
    
-   # Exibindo configuração atual
-   dotnet run -- --show-config
-   
-   # Ver ajuda completa
-   dotnet run -- --help
    ```
-
-### Execução com Docker
-
-#### Usando Docker Compose (Recomendado)
-
-1. **Build da imagem:**
-   ```bash
-   # Linux/Mac/WSL
-   ./docker-run.sh build
-   
-   # Windows PowerShell
-   .\docker-run.ps1 -Action build
-   
-   # Ou diretamente
-   docker-compose build
-   ```
-
-2. **Execução básica:**
-   ```bash
-   # Configuração padrão
-   docker-compose run --rm capitalgain
-   
-   # Com parâmetros personalizados
-   docker-compose run --rm capitalgain --tax-rate 0.15 --exemption-limit 25000
-   
-   # Exibir configuração
-   docker-compose run --rm capitalgain --show-config
-   ```
-
-3. **Ambientes pré-configurados:**
-   ```bash
-   # Ambiente de desenvolvimento (taxa 15%, limite R$ 25.000)
-   docker-compose run --rm capitalgain-dev
-   
-   # Ambiente de teste (taxa 10%, limite R$ 30.000)
-   docker-compose run --rm capitalgain-test
-   ```
-
-4. **Scripts auxiliares:**
-   ```bash
-   # Linux/Mac/WSL
-   ./docker-run.sh run                    # Execução padrão
-   ./docker-run.sh dev                    # Modo desenvolvimento
-   ./docker-run.sh test                   # Modo teste
-   ./docker-run.sh shell                  # Shell interativo
-   ./docker-run.sh clean                  # Limpeza
-   
-   # Windows PowerShell
-   .\docker-run.ps1 -Action run           # Execução padrão
-   .\docker-run.ps1 -Action dev           # Modo desenvolvimento
-   .\docker-run.ps1 -Action test          # Modo teste
-   .\docker-run.ps1 -Action shell         # Shell interativo
-   .\docker-run.ps1 -Action clean         # Limpeza
-   ```
-
-#### Usando Docker Diretamente
-
-```bash
-# Build
-docker build -t capitalgain .
-
-# Execução básica
-docker run --rm capitalgain
-
-# Com parâmetros
-docker run --rm capitalgain --tax-rate 0.15 --show-config
-
-# Com arquivo personalizado (mapeando volume)
-docker run --rm -v $(pwd)/inputs:/app/inputs capitalgain --input inputs/my-file.txt
-```
-
-### Estrutura de Arquivos para Docker
-
-```
-CapitalGain/
-├── inputs/              --> Arquivos de entrada personalizados
-│   └── example-input.txt
-├── outputs/             --> Saída de resultados (opcional)
-├── test-inputs/         --> Arquivos para testes
-│   └── test-input.txt
-├── test-outputs/        --> Saída de testes
-├── Dockerfile           --> Configuração do container
-├── docker-compose.yml   --> Orquestração de serviços
-├── docker-run.sh        --> Script auxiliar (Linux/Mac)
-└── docker-run.ps1       --> Script auxiliar (Windows)
-```
-
 ## Configuração
 
 O sistema oferece **3 níveis de configuração** com precedência hierárquica:
@@ -154,9 +62,6 @@ dotnet run -- --tax-rate 0.15 --exemption-limit 25000
 - `-t, --tax-rate <valor>`: Taxa de imposto (ex: 0.15 para 15%)
 - `-e, --exemption-limit <valor>`: Limite de isenção em reais
 - `-i, --input <arquivo>`: Arquivo de entrada (padrão: input.txt)
-- `-s, --show-config`: Exibe a configuração atual
-- `-c, --config`: Exibe informações sobre configuração
-- `-h, --help`: Exibe ajuda completa
 
 ### Exemplos de Uso
 
