@@ -3,16 +3,26 @@
 ## Descrição
 Sistema para cálculo de impostos sobre ganho de capital em operações de compra e venda de ações.
 
+## Requisitos Técnicos
+- .NET 8.0
+- Sistema de testes: xUnit
+- Formato de entrada: JSON
+
 ## Estrutura do Projeto
 ```
-CapitalGain/
+CapitalGain.sln                  --> Arquivo da solução
 │
-├── Program.cs                    --> Ponto de entrada da aplicação
-├── Models/
-│   ├── OperationEntry.cs        --> Classe para representar dados de entrada
-│   └── TaxConfiguration.cs      --> Configuração de impostos
-├── Services/
-│   └── CapitalGainService.cs    --> Lógica de cálculo de impostos
+├── CapitalGain/                 --> Projeto principal
+│   ├── Program.cs               --> Ponto de entrada da aplicação
+│   ├── Models/
+│   │   ├── OperationEntry.cs    --> Classe para representar dados de entrada
+│   │   └── TaxConfiguration.cs  --> Configuração de impostos
+│   └── Services/
+│       └── CapitalGainService.cs --> Lógica de cálculo de impostos
+│
+├── CapitalGain.Tests/           --> Projeto de testes
+│   └── CapitalGainServiceTests.cs --> Testes unitários
+│
 └── README.md                    --> Documentação do projeto
 ```
 
@@ -20,19 +30,23 @@ CapitalGain/
 
 ### Execução Local
 
-1. Compile o projeto:
+1. Compile a solução:
    ```bash
    dotnet build
    ```
 
-2. Execute o programa:
+2. Execute o programa principal:
    ```bash
    # Execução básica (arquivo de entrada obrigatório)
-   dotnet run -- --input input.txt
+   dotnet run --project CapitalGain -- --input input.txt
    
    # Com parâmetros personalizados
-   dotnet run -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
-   
+   dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15 --exemption-limit 25000
+   ```
+
+3. Execute os testes:
+   ```bash
+   dotnet test
    ```
 ## Configuração
 
@@ -67,23 +81,43 @@ dotnet run -- --tax-rate 0.15 --exemption-limit 25000
 
 ```bash
 # Execução básica com arquivo padrão
-dotnet run -- --input input.txt
+dotnet run --project CapitalGain -- --input input.txt
 
 # Taxa personalizada de 15%
-dotnet run -- --input input.txt --tax-rate 0.15
+dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.15
 
 # Limite de isenção de R$ 30.000
-dotnet run -- --input input.txt --exemption-limit 30000
+dotnet run --project CapitalGain -- --input input.txt --exemption-limit 30000
 
 # Configuração completa personalizada
-dotnet run -- --input input.txt --tax-rate 0.12 --exemption-limit 50000
+dotnet run --project CapitalGain -- --input input.txt --tax-rate 0.12 --exemption-limit 50000
 
 # Usando arquivo de entrada diferente
-dotnet run -- --input operacoes.txt
+dotnet run --project CapitalGain -- --input operacoes.txt
 
 # Combinando variáveis de ambiente e parâmetros
 $env:CAPITAL_GAIN_TAX_RATE="0.25"
-dotnet run -- --input input.txt --exemption-limit 35000
+dotnet run --project CapitalGain -- --input input.txt --exemption-limit 35000
+
+# Executar testes
+dotnet test
+```
+
+## Testes
+
+O projeto inclui testes unitários para validar a funcionalidade do serviço de cálculo de impostos.
+
+### Executar Testes
+
+```bash
+# Executar todos os testes
+dotnet test
+
+# Executar testes com verbose
+dotnet test --verbosity normal
+
+# Executar testes específicos do projeto
+dotnet test CapitalGain.Tests
 ```
 
 ## Regras de Negócio
