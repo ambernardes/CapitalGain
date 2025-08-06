@@ -54,3 +54,15 @@ TestResult.xml
 nunit-*.xml
 
 .vs
+
+# Docker outputs
+outputs/
+test-outputs/
+
+# Keep example inputs but ignore user-generated files
+inputs/*.txt
+!inputs/example-input.txt
+!inputs/scenario*.txt
+
+test-inputs/*.txt
+!test-inputs/test-input.txt
