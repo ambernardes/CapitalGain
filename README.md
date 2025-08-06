@@ -176,17 +176,3 @@ public void NovoCalculo_ValidInput_ReturnsExpected()
 2. **Teste isoladamente** cada nova funcionalidade
 3. **Use nomes descritivos** seguindo padrão `Method_Scenario_Expected`
 4. **Adicione cenários de integração** para fluxos complexos
-
-## Exemplos Rápidos
-
-```bash
-# Teste básico
-echo '[{"operation":"buy", "unit-cost":10.00, "quantity": 100}]' > test.txt
-dotnet run --project CapitalGain -- --input test.txt
-
-# Com configuração personalizada
-dotnet run --project CapitalGain -- --input test.txt --tax-rate 0.15
-
-# Executar testes
-dotnet test
-```
