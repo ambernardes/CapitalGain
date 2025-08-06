@@ -56,6 +56,7 @@ dotnet run --project CapitalGain -- --input operacoes.txt --tax-rate 0.15 --exem
 ```
 
 > **Nota**: O parâmetro `--input` é obrigatório. Os demais parâmetros são opcionais e, se não informados, utilizam os valores padrão conforme especificação: taxa de 20% e limite de isenção de R$ 20.000.
+Essa abordagem torna o código extensível e flexível, permitindo testar diferentes cenários e configurações diretamente via linha de comando, sem a necessidade de alterar o código-fonte.
 
 ### 3. Execute os testes
 
