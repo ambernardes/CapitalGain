@@ -56,14 +56,14 @@ namespace CapitalGain.Services
                     {
                         op.TaxPaid = 0;
                         
-                        weightedAveragePrice = ((weightedAveragePrice * totalQuantity) + (op.Quantity * op.UnitCost)) / (totalQuantity + op.Quantity);
+                        weightedAveragePrice = Math.Round(((weightedAveragePrice * totalQuantity) + (op.Quantity * op.UnitCost)) / (totalQuantity + op.Quantity), 2);
                         totalQuantity += op.Quantity;
                     }
                     else if (op.Operation.Equals("sell"))
                     {
-                        var soldPrice = op.UnitCost * op.Quantity;
-                        var weightedAverageCostTotal = weightedAveragePrice * op.Quantity;
-                        var gain = soldPrice - weightedAverageCostTotal;
+                        var soldPrice = Math.Round(op.UnitCost * op.Quantity, 2);
+                        var weightedAverageCostTotal = Math.Round(weightedAveragePrice * op.Quantity, 2);
+                        var gain = Math.Round(soldPrice - weightedAverageCostTotal, 2);
                         
                         totalQuantity -= op.Quantity;
                         
@@ -77,11 +77,11 @@ namespace CapitalGain.Services
                             else
                             {
                                 // Deduz prejuízos acumulados do lucro antes de calcular o imposto
-                                var taxableGain = Math.Max(0, gain - accumulatedLoss);
-                                var taxPaid = taxableGain * _taxConfig.TaxRate;
+                                var taxableGain = Math.Round(Math.Max(0, gain - accumulatedLoss), 2);
+                                var taxPaid = Math.Round(taxableGain * _taxConfig.TaxRate, 2);
                                 
                                 // Atualiza prejuízos acumulados
-                                accumulatedLoss = Math.Max(0, accumulatedLoss - gain);
+                                accumulatedLoss = Math.Round(Math.Max(0, accumulatedLoss - gain), 2);
                                 
                                 op.TaxPaid = taxPaid;
                             }
@@ -89,7 +89,7 @@ namespace CapitalGain.Services
                         else
                         {
                             op.TaxPaid = 0;
-                            accumulatedLoss += Math.Abs(gain);
+                            accumulatedLoss = Math.Round(accumulatedLoss + Math.Abs(gain), 2);
                         }
                     }
                 }
@@ -98,10 +98,15 @@ namespace CapitalGain.Services
 
         public void DisplayResults(List<List<OperationEntry>> allOperations)
         {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
             foreach (var batch in allOperations)
             {
-                var results = batch.Select(op => new { tax = op.TaxPaid }).ToArray();
-                var json = JsonSerializer.Serialize(results);
+                var results = batch.Select(op => new { tax = Math.Round(op.TaxPaid, 1) }).ToArray();
+                var json = JsonSerializer.Serialize(results, options);
                 Console.WriteLine(json);
             }
         }
