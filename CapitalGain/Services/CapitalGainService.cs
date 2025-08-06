@@ -44,27 +44,24 @@ namespace CapitalGain.Services
 
         public void CalculateTaxes(List<List<OperationEntry>> allOperations)
         {
+            var weightedAveragePrice = 0m;
+            var totalQuantity = 0;
+            var accumulatedLoss = 0m;
+            
             foreach (var batch in allOperations)
             {
-                var weightedAveragePrice = 0m;
-                var totalQuantity = 0;
-                var accumulatedLoss = 0m;
-                
                 foreach (var op in batch)
                 {
-                    if (op.Operation.Equals("buy"))
+                    if (op.Operation.Equals("buy", StringComparison.OrdinalIgnoreCase))
                     {
                         op.TaxPaid = 0;
-                        
-                        weightedAveragePrice = Math.Round(((weightedAveragePrice * totalQuantity) + (op.Quantity * op.UnitCost)) / (totalQuantity + op.Quantity), 2);
+                        weightedAveragePrice = TaxCalculator.CalculateWeightedAveragePrice(weightedAveragePrice, totalQuantity, op.UnitCost, op.Quantity);
                         totalQuantity += op.Quantity;
                     }
-                    else if (op.Operation.Equals("sell"))
+                    else if (op.Operation.Equals("sell", StringComparison.OrdinalIgnoreCase))
                     {
+                        var gain = TaxCalculator.CalculateGain(op.UnitCost, op.Quantity, weightedAveragePrice);
                         var soldPrice = Math.Round(op.UnitCost * op.Quantity, 2);
-                        var weightedAverageCostTotal = Math.Round(weightedAveragePrice * op.Quantity, 2);
-                        var gain = Math.Round(soldPrice - weightedAverageCostTotal, 2);
-                        
                         totalQuantity -= op.Quantity;
                         
                         if (gain > 0) 
