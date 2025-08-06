@@ -88,7 +88,7 @@ dotnet test CapitalGain.IntegrationTests
 
 ## Regras de Negócio
 
-Regras implementadas conforme [especificação](docs/spec-ptbr.pdf.pdf). 
+Regras implementadas conforme [especificação](docs/spec-ptbr.pdf). 
 
 ## Arquitetura
 
