@@ -41,7 +41,6 @@ namespace CapitalGain.IntegrationTests.Scenarios
             var operations = service.ParseOperations(inputJson);
             service.CalculateTaxes(operations);
             
-            // Convert to expected output format (same as DisplayResults method)
             var actualOutputLines = new List<string>();
             foreach (var batch in operations)
             {
@@ -59,38 +58,15 @@ namespace CapitalGain.IntegrationTests.Scenarios
             Assert.Equal(normalizedExpectedOutput, normalizedActualOutput);
         }
 
-        /// <summary>
-        /// Normaliza a saída removendo espaços em branco desnecessários e padronizando quebras de linha
-        /// </summary>
         private static string NormalizeOutput(string output)
         {
             if (string.IsNullOrEmpty(output))
                 return string.Empty;
 
-            return Regex.Replace(output, @"[ \t]+", "")  // Remove espaços e tabs
+            return Regex.Replace(output, @"[ \t]+", "")
                 .Replace("\r\n", "\n")
                 .Replace("\r", "\n")
                 .Trim();
-        }
-
-        /// <summary>
-        /// Método auxiliar para validar se os resultados estão no formato correto
-        /// </summary>
-        private static void ValidateOutputFormat(string output)
-        {
-            var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            
-            foreach (var line in lines)
-            {
-                // Cada linha deve ser um array JSON válido
-                Assert.True(line.StartsWith("[") && line.EndsWith("]"), 
-                    $"Output line should be a JSON array: {line}");
-                
-                // Deve conseguir deserializar
-                var results = JsonSerializer.Deserialize<object[]>(line, _jsonOptions);
-                Assert.NotNull(results);
-                Assert.True(results.Length > 0);
-            }
         }
     }
 }

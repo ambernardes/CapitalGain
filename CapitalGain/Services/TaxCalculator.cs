@@ -1,13 +1,7 @@
 namespace CapitalGain.Services
 {
-    /// <summary>
-    /// Classe com métodos estáticos para cálculos - Transparência Referencial
-    /// </summary>
     public static class TaxCalculator
     {
-        /// <summary>
-        /// Calcula o preço médio ponderado
-        /// </summary>
         public static decimal CalculateWeightedAveragePrice(
             decimal currentWeightedPrice, 
             int currentQuantity, 
@@ -24,9 +18,6 @@ namespace CapitalGain.Services
             return Math.Round((totalCostCurrent + totalCostNew) / totalQuantity, 2);
         }
 
-        /// <summary>
-        /// Calcula o ganho ou perda de uma operação de venda
-        /// </summary>
         public static decimal CalculateGain(
             decimal sellPrice, 
             int sellQuantity, 
