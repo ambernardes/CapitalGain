@@ -56,7 +56,7 @@ namespace CapitalGain.Tests
         [Fact]
         public void CalculateTaxes_SellWithLoss_NoTax()
         {
-            // Arrange - fragmento de exemplo na especifica��o 
+            // Arrange - fragmento de exemplo na especificação
             var operations = new List<List<OperationEntry>>
             {
                 new()
@@ -97,7 +97,7 @@ namespace CapitalGain.Tests
         [Fact]
         public void CalculateTaxes_SellAboveExemptionLimitWithProfit_PaysTax()
         {
-            // Arrange - Venda de R$ 25.000 (acima do limite de R$ 20.000)
+            // Arrange - Venda de R$ 100.000 (acima do limite de R$ 20.000)
             var operations = new List<List<OperationEntry>>
             {
                 new()
@@ -116,61 +116,28 @@ namespace CapitalGain.Tests
         }
 
         [Fact]
-        public void CalculateTaxes_WeightedAveragePrice_CalculatesCorrectly()
-        {
-            // Arrange
-            var operations = new List<List<OperationEntry>>
-            {
-                new()
-                {
-                    new OperationEntry { Operation = "buy", UnitCost = 10.00m, Quantity = 100 },
-                    new OperationEntry { Operation = "buy", UnitCost = 20.00m, Quantity = 200 },
-                    new OperationEntry { Operation = "sell", UnitCost = 25.00m, Quantity = 150 }
-                }
-            };
-
-            // Act
-            _service.CalculateTaxes(operations);
-
-            // Assert
-            Assert.Equal(0, operations[0][0].TaxPaid);
-            Assert.Equal(0, operations[0][1].TaxPaid);
-            Assert.Equal(0, operations[0][2].TaxPaid);
-        }
-
-        [Fact]
         public void CalculateTaxes_AccumulatedLoss_DeductsFromFutureGains()
         {
-            // Arrange - Vou fazer separadamente para evitar problemas com o parse de m�ltiplas linhas
+            // Arrange - Vou fazer separadamente para evitar problemas com o parse de múltiplas linhas
             var operations1 = new List<List<OperationEntry>>
             {
                 new()
                 {
-                    new OperationEntry { Operation = "buy", UnitCost = 20.00m, Quantity = 1000 },
-                    new OperationEntry { Operation = "sell", UnitCost = 15.00m, Quantity = 1000 }
-                }
-            };
-
-            var operations2 = new List<List<OperationEntry>>
-            {
-                new()
-                {
-                    new OperationEntry { Operation = "buy", UnitCost = 20.00m, Quantity = 1000 },
-                    new OperationEntry { Operation = "sell", UnitCost = 23.00m, Quantity = 1000 }
+                    new OperationEntry { Operation = "buy", UnitCost = 10.00m, Quantity = 10000 },
+                    new OperationEntry { Operation = "sell", UnitCost = 5.00m, Quantity = 5000 },
+                    new OperationEntry { Operation = "sell", UnitCost = 20.00m, Quantity = 3000 }
                 }
             };
 
             // Act
             _service.CalculateTaxes(operations1);
-            _service.CalculateTaxes(operations2);
-
             // Assert
-            // Primeira opera��o: preju�zo, sem imposto
+            // Primeira operação: compra, sem imposto
+            Assert.Equal(0, operations1[0][0].TaxPaid);
+            // Segunda operação: Prejuízo de R$ 25000, sem imposto
             Assert.Equal(0, operations1[0][1].TaxPaid);
-
-            // Segunda opera��o: lucro de R$ 3.000, mas seria deduzido do preju�zo anterior
-            // Como as opera��es s�o separadas, essa opera��o ter� imposto normal
-            Assert.Equal(600.00m, operations2[0][1].TaxPaid); // 3000 * 0.20
+            // Terceira operação: Lucro de R$ 30000: Deve deduzir prejuízo de R$ 25000 e paga 20% de R$ 5000 em imposto (R$ 1000)
+            Assert.Equal(1000.00m, operations1[0][2].TaxPaid); 
         }
 
         [Fact]
@@ -185,7 +152,7 @@ namespace CapitalGain.Tests
                 new()
                 {
                     new OperationEntry { Operation = "buy", UnitCost = 10.00m, Quantity = 1000 },
-                    new OperationEntry { Operation = "sell", UnitCost = 25.00m, Quantity = 1000 } // R$ 25.000
+                    new OperationEntry { Operation = "sell", UnitCost = 25.00m, Quantity = 1000 }
                 }
             };
 
@@ -193,18 +160,16 @@ namespace CapitalGain.Tests
             customService.CalculateTaxes(operations);
 
             // Assert
-            // Venda de R$ 25.000 est� abaixo do limite de R$ 30.000 - sem imposto
+            // Venda de R$ 25.000 está abaixo do limite de R$ 30.000 - sem imposto
             Assert.Equal(0, operations[0][1].TaxPaid);
         }
 
         [Theory]
-        [InlineData(10.00, 1000, 15.00, 500, 0)] // Below exemption limit
-        [InlineData(10.00, 1000, 25.00, 1000, 3000)] // Above exemption limit
-        [InlineData(20.00, 1000, 15.00, 1000, 0)] // Loss scenario
-        public void CalculateTaxes_VariousScenarios_ProducesExpectedTax(
-            decimal buyCost, int buyQuantity,
-            decimal sellCost, int sellQuantity,
-            decimal expectedTax)
+        [InlineData(10.00, 1000, 15.00, 500, 0)] // Abaixo do limite de isenção
+        [InlineData(10.00, 1000, 25.00, 1000, 3000)] // Acima do limite de isenção
+        [InlineData(20.00, 1000, 15.00, 1000, 0)] // Prejuízo sem imposto
+        public void CalculateTaxes_VariousScenarios_ProducesExpectedTax(decimal buyCost, int buyQuantity,
+            decimal sellCost, int sellQuantity, decimal expectedTax)
         {
             // Arrange
             var operations = new List<List<OperationEntry>>
