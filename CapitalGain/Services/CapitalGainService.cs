@@ -54,7 +54,7 @@ namespace CapitalGain.Services
                 {
                     if (op.Operation.Equals("buy", StringComparison.OrdinalIgnoreCase))
                     {
-                        op.TaxPaid = 0;
+                        op.TaxPaid = 0.0m;
                         weightedAveragePrice = TaxCalculator.CalculateWeightedAveragePrice(weightedAveragePrice, totalQuantity, op.UnitCost, op.Quantity);
                         totalQuantity += op.Quantity;
                     }
@@ -68,7 +68,7 @@ namespace CapitalGain.Services
                         {
                             if (soldPrice <= _taxConfig.TaxExemptionLimit)
                             {
-                                op.TaxPaid = 0;
+                                op.TaxPaid = 0.0m;
                             }
                             else
                             {
@@ -80,7 +80,7 @@ namespace CapitalGain.Services
                         }
                         else
                         {
-                            op.TaxPaid = 0;
+                            op.TaxPaid = 0.0m;
                             accumulatedLoss = Math.Round(accumulatedLoss + Math.Abs(gain), 2);
                         }
                     }
