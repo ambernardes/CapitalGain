@@ -16,7 +16,7 @@ namespace CapitalGain.Tests
         public void ParseOperations_ValidJson_ReturnsCorrectOperations()
         {
             // Arrange
-            string inputJson = "[{\"operation\":\"buy\", \"unit-cost\":10.00, \"quantity\": 1000}]\n" +
+            string inputJson = "[{\"operation\":\"buy\", \"unit-cost\":10.00, \"quantity\": 1000}]" + Environment.NewLine +
                               "[{\"operation\":\"sell\", \"unit-cost\":15.00, \"quantity\": 500}]";
 
             // Act
@@ -56,7 +56,7 @@ namespace CapitalGain.Tests
         [Fact]
         public void CalculateTaxes_SellWithLoss_NoTax()
         {
-            // Arrange - fragmento de exemplo na especificação 
+            // Arrange - fragmento de exemplo na especificaï¿½ï¿½o 
             var operations = new List<List<OperationEntry>>
             {
                 new()
@@ -141,7 +141,7 @@ namespace CapitalGain.Tests
         [Fact]
         public void CalculateTaxes_AccumulatedLoss_DeductsFromFutureGains()
         {
-            // Arrange - Vou fazer separadamente para evitar problemas com o parse de múltiplas linhas
+            // Arrange - Vou fazer separadamente para evitar problemas com o parse de mï¿½ltiplas linhas
             var operations1 = new List<List<OperationEntry>>
             {
                 new()
@@ -165,11 +165,11 @@ namespace CapitalGain.Tests
             _service.CalculateTaxes(operations2);
 
             // Assert
-            // Primeira operação: prejuízo, sem imposto
+            // Primeira operaï¿½ï¿½o: prejuï¿½zo, sem imposto
             Assert.Equal(0, operations1[0][1].TaxPaid);
 
-            // Segunda operação: lucro de R$ 3.000, mas seria deduzido do prejuízo anterior
-            // Como as operações são separadas, essa operação terá imposto normal
+            // Segunda operaï¿½ï¿½o: lucro de R$ 3.000, mas seria deduzido do prejuï¿½zo anterior
+            // Como as operaï¿½ï¿½es sï¿½o separadas, essa operaï¿½ï¿½o terï¿½ imposto normal
             Assert.Equal(600.00m, operations2[0][1].TaxPaid); // 3000 * 0.20
         }
 
@@ -193,7 +193,7 @@ namespace CapitalGain.Tests
             customService.CalculateTaxes(operations);
 
             // Assert
-            // Venda de R$ 25.000 está abaixo do limite de R$ 30.000 - sem imposto
+            // Venda de R$ 25.000 estï¿½ abaixo do limite de R$ 30.000 - sem imposto
             Assert.Equal(0, operations[0][1].TaxPaid);
         }
 

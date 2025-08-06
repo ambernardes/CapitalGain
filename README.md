@@ -311,11 +311,101 @@ O projeto inclui testes unitários abrangentes para validar tanto a funcionalida
 ### Categorias de Testes
 
 #### 1. Testes Unitários (`CapitalGain.Tests`)
-- **`TaxCalculatorTests`**: Validam funções puras de cálculo matemático
-- **`CapitalGainServiceTests`**: Testam lógica de negócio e fluxo do serviço
-- Validam que funções puras retornam sempre o mesmo resultado
-- Testam cálculos matemáticos isoladamente
-- Verificam diferentes cenários de entrada
+
+O projeto possui uma arquitetura de testes bem estruturada dividida em **duas categorias principais**:
+
+##### **TaxCalculatorTests** - Testes de Funções Puras
+**Localização**: `CapitalGain.Tests/TaxCalculatorTests.cs`  
+**Objetivo**: Validar métodos matemáticos estáticos e transparência referencial
+
+**CalculateWeightedAveragePrice (Preço Médio Ponderado)**
+- **`CalculateWeightedAveragePrice_NewPurchase_ReturnsCorrectAverage`**
+  - Cenário: Duas compras com preços diferentes
+  - Valida: (10×100 + 20×100) ÷ 200 = 15.00
+  
+- **`CalculateWeightedAveragePrice_ZeroQuantity_ReturnsZero`**
+  - Cenário: Quantidades zeradas  
+  - Valida: Retorna 0 para casos extremos
+
+- **`CalculateWeightedAveragePrice_SameInputs_ReturnsSameOutput`**
+  - Cenário: **Transparência Referencial**
+  - Valida: Mesmas entradas sempre produzem mesmas saídas
+
+**CalculateGain (Cálculo de Ganho/Perda)**
+- **`CalculateGain_ProfitOperation_ReturnsPositiveGain`**
+  - Cenário: Venda com lucro
+  - Valida: (20×100) - (10×100) = 1000
+
+- **`CalculateGain_LossOperation_ReturnsNegativeGain`**
+  - Cenário: Venda com prejuízo
+  - Valida: (5×100) - (10×100) = -500
+
+**Testes Parametrizados**
+- **`CalculateWeightedAveragePrice_VariousInputs_ReturnsExpectedResults`**
+  - Usa `[Theory]` e `[InlineData]`
+  - Testa múltiplos cenários em um só método
+
+##### **CapitalGainServiceTests** - Testes de Lógica de Negócio
+**Localização**: `CapitalGain.Tests/CapitalGainServiceTests.cs`  
+**Objetivo**: Validar regras de negócio e fluxo completo do serviço
+
+**Operações de Compra**
+- **`CalculateTaxes_BuyOperation_NoTax`**
+  - Valida: Compras nunca pagam imposto
+
+**Cenários de Prejuízo**  
+- **`CalculateTaxes_SellWithLoss_NoTax`**
+  - Valida: Vendas com prejuízo não pagam imposto
+
+**Limite de Isenção**
+- **`CalculateTaxes_SellBelowExemptionLimit_NoTax`**
+  - Cenário: Venda de R$ 15.000 (< R$ 20.000)
+  - Valida: Isenção aplicada corretamente
+
+- **`CalculateTaxes_SellAboveExemptionLimitWithProfit_PaysTax`**
+  - Cenário: Venda de R$ 100.000 (> R$ 20.000)
+  - Valida: 20% sobre o lucro = R$ 10.000
+
+**Preço Médio Ponderado**
+- **`CalculateTaxes_WeightedAveragePrice_CalculatesCorrectly`**
+  - Cenário: Múltiplas compras seguidas de venda
+  - Valida: Cálculo correto do preço médio
+
+**Acumulação de Prejuízos**
+- **`CalculateTaxes_AccumulatedLoss_DeductsFromFutureGains`**
+  - Valida: Prejuízos deduzem lucros futuros
+
+**Configuração Personalizada**
+- **`CalculateTaxes_CustomTaxConfiguration_UsesCustomValues`**
+  - Cenário: Taxa 15%, Limite R$ 30.000
+  - Valida: Configurações customizadas funcionam
+
+**Testes Parametrizados de Cenários**
+- **`CalculateTaxes_VariousScenarios_ProducesExpectedTax`**
+  - Três cenários: Abaixo limite, Acima limite, Prejuízo
+  - Valida múltiplos casos em um teste
+
+##### **Características dos Testes Unitários**
+
+**Transparência Referencial**
+- Testes validam que funções puras sempre retornam o mesmo resultado
+- Métodos do `TaxCalculator` são determinísticos  
+- Facilita debugging e manutenção
+
+**Cobertura Abrangente**
+- **Casos Normais**: Operações típicas de compra/venda
+- **Casos Extremos**: Quantidades zero, prejuízos, limites
+- **Configurações**: Testes com configurações padrão e customizadas
+
+**Padrões de Teste**
+- **Arrange-Act-Assert**: Estrutura clara e consistente
+- **Naming Convention**: `Method_Scenario_ExpectedResult`
+- **Theory Tests**: Uso de `[Theory]` e `[InlineData]`
+
+**Cenários de Negócio Reais**
+- Valores baseados em cenários reais do mercado financeiro
+- Limites de isenção conforme legislação brasileira (R$ 20.000)
+- Taxa de imposto padrão de 20%
 
 #### 2. Testes de Integração (`CapitalGain.IntegrationTests`)
 - **`FullFlowTests`**: Validam o fluxo completo end-to-end
@@ -343,13 +433,42 @@ dotnet test CapitalGain.Tests
 # Executar apenas testes de integração
 dotnet test CapitalGain.IntegrationTests
 
-# Executar testes específicos por nome
+# Executar testes específicos por classe
 dotnet test --filter "TaxCalculatorTests"
-
-# Executar testes específicos do serviço principal
 dotnet test --filter "CapitalGainServiceTests"
+dotnet test --filter "FullFlowTests"
+
+# Executar testes específicos por método
+dotnet test --filter "CalculateWeightedAveragePrice"
+dotnet test --filter "CalculateTaxes"
+
+# Executar apenas testes de transparência referencial
+dotnet test --filter "SameInputs_ReturnsSameOutput"
+
+# Executar testes parametrizados específicos
+dotnet test --filter "VariousInputs_ReturnsExpectedResults"
+dotnet test --filter "VariousScenarios_ProducesExpectedTax"
+
+# Executar com cobertura de código (se configurado)
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Validação da Qualidade dos Testes
+
+```bash
+# Verificar cobertura específica por componente
+dotnet test CapitalGain.Tests --filter "TaxCalculatorTests" --verbosity normal
+dotnet test CapitalGain.Tests --filter "CapitalGainServiceTests" --verbosity normal
+
+# Executar apenas testes de regras de negócio
+dotnet test --filter "ExemptionLimit|AccumulatedLoss|CustomTaxConfiguration"
+
+# Executar apenas testes de cálculos matemáticos
+dotnet test --filter "CalculateWeightedAveragePrice|CalculateGain"
+```
 
 # Executar testes de fluxo completo
+```bash
 dotnet test --filter "FullFlowTests"
 
 # Executar com cobertura de código (se configurado)
@@ -358,17 +477,17 @@ dotnet test --collect:"XPlat Code Coverage"
 
 ## Benefícios da Arquitetura
 
-### 🔧 **Manutenibilidade**
+### **Manutenibilidade**
 - Cálculos matemáticos isolados em funções puras
 - Fácil identificação e correção de bugs em cálculos específicos
 - Código mais legível e autodocumentado
 
-### 🧪 **Estratégia de Testes em Camadas**
+### **Estratégia de Testes em Camadas**
 - **Testes Unitários**: Validação isolada de métodos e funções puras
 - **Testes de Integração**: Validação end-to-end com cenários reais
 - **Fixtures Organizadas**: Cenários de teste bem estruturados e reutilizáveis
 
-### 📊 **Cobertura de Testes Abrangente**
+### **Cobertura de Testes Abrangente**
 - Cenários de compra e venda diversos
 - Casos extremos (prejuízos, isenções, volumes altos)
 - Validação de cálculos matemáticos complexos
@@ -399,24 +518,24 @@ O projeto implementa uma estratégia de testes em camadas para garantir qualidad
 
 ### Benefícios da Arquitetura Atual
 
-#### 🔧 **Manutenibilidade**
+#### **Manutenibilidade**
 - Cálculos matemáticos isolados em funções puras
 - Fácil identificação e correção de bugs em cálculos específicos
 - Código mais legível e autodocumentado
 - Separação clara entre lógica de negócio e apresentação
 
-#### 🧪 **Testabilidade**
+#### **Testabilidade**
 - Funções puras são facilmente testáveis
 - Testes determinísticos (sempre produzem o mesmo resultado)
 - Cobertura de testes mais granular
 - Cenários de integração documentados e reproduzíveis
 
-#### 🔄 **Reutilização**
+#### **Reutilização**
 - Métodos de cálculo podem ser reutilizados em outros contextos
 - Separação clara entre lógica de negócio e cálculos matemáticos
 - Fixtures reutilizáveis para diferentes tipos de teste
 
-#### 🚀 **Performance**
+#### **Performance**
 - Funções puras podem ser otimizadas pelo compilador
 - Possibilidade de memoização em cenários específicos
 - Redução de efeitos colaterais indesejados
@@ -439,6 +558,6 @@ Os cálculos matemáticos são implementados através de **funções puras** na 
 - **`CalculateGain`**: Determina o ganho ou perda em uma operação de venda
 
 Estes métodos garantem:
-- ✅ **Consistência**: Sempre produzem o mesmo resultado para as mesmas entradas
-- ✅ **Auditabilidade**: Cálculos podem ser verificados independentemente
-- ✅ **Confiabilidade**: Sem efeitos colaterais ou dependências externas
+- **Consistência**: Sempre produzem o mesmo resultado para as mesmas entradas
+- **Auditabilidade**: Cálculos podem ser verificados independentemente
+- **Confiabilidade**: Sem efeitos colaterais ou dependências externas
